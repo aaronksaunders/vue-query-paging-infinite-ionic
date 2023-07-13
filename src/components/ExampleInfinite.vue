@@ -1,5 +1,5 @@
 <template>
-  <h1 v-if="isLoading"><ion-loading/></h1>
+  <h1 v-if="isLoading"><ion-loading /></h1>
   <ion-button @click="nextPage" :disabled="isFetching" v-if="hasNextPage">
     {{ isFetching ? "Loading..." : "Load More Data" }}
   </ion-button>
@@ -16,8 +16,11 @@
 import { IonItem, IonLabel, IonList, IonButton, IonLoading } from "@ionic/vue";
 import { useInfiniteQuery } from "@tanstack/vue-query";
 
-const fetcher = async ({ pageParam = 1 }) => {
-  console.log(pageParam);
+/**
+ *
+ * @param the page
+ */
+const peopleFetcher = async ({ pageParam = 1 }) => {
   const response = await fetch(
     `https://randomuser.me/api/?page=${pageParam}&results=10&seed=abc`
   );
@@ -36,23 +39,19 @@ const fetcher = async ({ pageParam = 1 }) => {
   };
 };
 
-const {
-  data,
-  error,
-  fetchNextPage,
-  hasNextPage,
-  isFetching,
-  isFetchingNextPage,
-  isLoading,
-  isError,
-} = useInfiniteQuery({
-  queryKey: ["people"],
-  queryFn: fetcher,
-  getNextPageParam: (lastPage, pages) => {
-    return lastPage.cursor;
-  },
-});
+// use the hook from TanStack to query data
+const { data, fetchNextPage, hasNextPage, isFetching, isLoading } =
+  useInfiniteQuery({
+    queryKey: ["people"],
+    queryFn: peopleFetcher,
+    getNextPageParam: (lastPage) => {
+      return lastPage.cursor;
+    },
+  });
 
+/**
+ * function to ge the next page of data
+ */
 const nextPage = () => {
   fetchNextPage();
 };
